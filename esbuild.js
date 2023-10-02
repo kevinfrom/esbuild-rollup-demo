@@ -8,29 +8,41 @@ const defaultOptions = {
     format: 'iife'
 }
 
+/**
+ *
+ * @param name {string}
+ * @param fn {Promise}
+ * @returns {Promise<void>}
+ */
+const measure = async (name, fn) => {
+    const start = performance.now()
+    await fn
+    console.log(`time: ${name} took ${performance.now() - start}ms`)
+}
+
 Promise.all([
-    esbuild.build({
+    measure('js', esbuild.build({
         entryPoints: ['src/index.js'],
         outfile: 'dist/esbuild-js.min.js',
         ...defaultOptions
-    }),
-    esbuild.build({
+    })),
+    measure('ts', esbuild.build({
         entryPoints: ['src/index.ts'],
         outfile: 'dist/esbuild-ts.min.js',
         ...defaultOptions
-    }),
-    esbuild.build({
+    })),
+    measure('scss', esbuild.build({
         entryPoints: ['src/index.scss'],
         outfile: 'dist/esbuild-scss.min.css',
         plugins: [sassPlugin()],
         ...defaultOptions
-    }),
-    esbuild.build({
+    })),
+    measure('less', esbuild.build({
         entryPoints: ['src/index.less'],
         outfile: 'dist/esbuild-less.min.css',
         plugins: [lessLoader()],
         ...defaultOptions
-    })
+    }))
 ])
     .then(() => console.log('ESBuild finished'))
     .catch(err => console.error(`ESBuild error: ${err}`))
